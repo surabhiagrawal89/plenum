@@ -37,8 +37,17 @@ def tdirAndLooper():
             yield td, looper
 
 
-def testNodesConnectsWhenOneNodeIsLate(allPluginsPath, tdirAndLooper, nodeReg):
-    tdir, looper = tdirAndLooper
+@pytest.fixture()
+def tdir(tdirAndLooper):
+    return tdirAndLooper[0]
+
+
+@pytest.fixture()
+def looper(tdirAndLooper):
+    return tdirAndLooper[1]
+
+
+def testNodesConnectsWhenOneNodeIsLate(allPluginsPath, tdir, looper, nodeReg):
     nodes = []
     names = list(nodeReg.keys())
     logger.debug("Node names: {}".format(names))
@@ -65,8 +74,7 @@ def testNodesConnectsWhenOneNodeIsLate(allPluginsPath, tdirAndLooper, nodeReg):
     stopNodes(nodes, looper)
 
 
-def testNodesConnectWhenTheyAllStartAtOnce(allPluginsPath, tdirAndLooper, nodeReg):
-    tdir, looper = tdirAndLooper
+def testNodesConnectWhenTheyAllStartAtOnce(allPluginsPath, tdir, looper, nodeReg):
     nodes = []
     for name in nodeReg:
         node = TestNode(name, nodeReg, basedirpath=tdir,
@@ -80,10 +88,9 @@ def testNodesConnectWhenTheyAllStartAtOnce(allPluginsPath, tdirAndLooper, nodeRe
 
 # @pytest.mark.parametrize("x10", range(1, 11))
 # def testNodesComingUpAtDifferentTimes(x10):
-def testNodesComingUpAtDifferentTimes(allPluginsPath, tdirAndLooper, nodeReg):
+def testNodesComingUpAtDifferentTimes(allPluginsPath, tdir, looper, nodeReg):
     console = getConsole()
     console.reinit(flushy=True, verbosity=console.Wordage.verbose)
-    tdir, looper = tdirAndLooper
 
     nodes = []
 
@@ -99,6 +106,7 @@ def testNodesComingUpAtDifferentTimes(allPluginsPath, tdirAndLooper, nodeReg):
         node.startKeySharing()
         nodes.append(node)
         looper.runFor(waits[i])
+        logger.debug('{} started, waiting for {} sec'.format(name, waits[i]))
     looper.run(checkNodesConnected(nodes,
                                    overrideTimeout=10))
     logger.debug("connects")
@@ -110,6 +118,7 @@ def testNodesComingUpAtDifferentTimes(allPluginsPath, tdirAndLooper, nodeReg):
     for i, n in enumerate(nodes):
         n.start(looper.loop)
         looper.runFor(rwaits[i])
+        logger.debug('{} started, waiting for {} sec'.format(n, rwaits[i]))
     looper.runFor(3)
     looper.run(checkNodesConnected(nodes,
                                    overrideTimeout=10))
@@ -119,10 +128,9 @@ def testNodesComingUpAtDifferentTimes(allPluginsPath, tdirAndLooper, nodeReg):
     logger.debug("rwaits: {}".format(rwaits))
 
 
-def testNodeConnection(allPluginsPath, tdirAndLooper, nodeReg):
+def testNodeConnection(allPluginsPath, tdir, looper, nodeReg):
     console = getConsole()
     console.reinit(flushy=True, verbosity=console.Wordage.verbose)
-    tdir, looper = tdirAndLooper
     names = ["Alpha", "Beta"]
     logger.debug(names)
     nrg = {n: nodeReg[n] for n in names}
@@ -148,10 +156,9 @@ def testNodeConnection(allPluginsPath, tdirAndLooper, nodeReg):
 @pytest.mark.skip(reason="SOV-538. "
                          "Fails due to a bug. Its fixed here "
                          "https://github.com/RaetProtocol/raet/pull/9")
-def testNodeConnectionAfterKeysharingRestarted(allPluginsPath, tdirAndLooper):
+def testNodeConnectionAfterKeysharingRestarted(allPluginsPath, tdir, looper):
     console = getConsole()
     console.reinit(flushy=True, verbosity=console.Wordage.verbose)
-    tdir, looper = tdirAndLooper
     timeout = 60
     names = ["Alpha", "Beta"]
     logger.debug(names)
@@ -173,13 +180,11 @@ def testNodeConnectionAfterKeysharingRestarted(allPluginsPath, tdirAndLooper):
     stopNodes([A, B], looper)
 
 
-def testNodeRemoveUnknownRemote(allPluginsPath, tdirAndLooper, nodeReg):
+def testNodeRemoveUnknownRemote(allPluginsPath, tdir, looper, nodeReg):
     """
     The nodes Alpha and Beta know about each other so they should connect but
     they should remove remote for C when it tries to connect to them
     """
-
-    tdir, looper = tdirAndLooper
     names = ["Alpha", "Beta"]
     logger.debug(names)
     nrg = {n: nodeReg[n] for n in names}

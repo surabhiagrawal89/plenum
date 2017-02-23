@@ -90,7 +90,7 @@ STATS_SERVER_IP = '127.0.0.1'
 STATS_SERVER_PORT = 30000
 STATS_SERVER_MESSAGE_BUFFER_MAX_SIZE = 1000
 
-RAETLogLevel = "terse"
+RAETLogLevel = "verbose"
 RAETLogLevelCli = "mute"
 RAETLogFilePath = os.path.join(os.path.expanduser(baseDir), "raet.log")
 RAETLogFilePathCli = None

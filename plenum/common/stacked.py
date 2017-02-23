@@ -323,6 +323,12 @@ class SimpleStack(Stack):
         for o in outs:
             logger.info("{} disconnected from {}".format(self, o),
                         extra={"cli": "IMPORTANT"})
+            try:
+                r = self.getRemote(name=o)
+                logger.info('{} {} {}'.format(r.joined, r.allowed, r.alived))
+            except RemoteNotFound:
+                pass
+
         for i in ins:
             logger.info("{} now connected to {}".format(self, i),
                         extra={"cli": "IMPORTANT"})
@@ -590,6 +596,7 @@ class KITStack(SimpleStack):
                          "progress")
         elif disconn.joined:
             self.updateStamp()
+            # self.allow(uid=disconn.uid, cascade=True, timeout=20)
             self.allow(uid=disconn.uid, cascade=True, timeout=20)
             logger.debug("{} disconnected node {} is joined".format(
                 self, disconn.name), extra={"cli": "STATUS"})

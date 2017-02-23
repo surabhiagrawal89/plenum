@@ -11,6 +11,7 @@ from typing import Dict, Any
 
 import pip
 import pytest
+from ioflo.base.consoling import getConsole
 
 from ledger.compact_merkle_tree import CompactMerkleTree
 from ledger.ledger import Ledger
@@ -148,9 +149,15 @@ def logcapture(request, whitelist, concerningLogLevels):
     logging.getLogger().addHandler(ch)
 
     request.addfinalizer(lambda: logging.getLogger().removeHandler(ch))
+
+    # Override config values
     config = getConfig(tdir)
     for k, v in overriddenConfigValues.items():
         setattr(config, k, v)
+
+    console = getConsole()
+    console.close()
+    console.reinit(verbosity=console._verbosity, path=console._Path)
 
 
 @pytest.yield_fixture(scope="module")

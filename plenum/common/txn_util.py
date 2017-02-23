@@ -32,11 +32,13 @@ def getTxnOrderedFields():
     ])
 
 
-def createGenesisTxnFile(genesisTxns, targetDir, fileName, fieldOrdering,
-                         reset=True):
+def createGenesisTxnFile(genesisTxns, targetDir, fileName, serializer=None,
+                         fieldOrdering=None, reset=True):
+    if serializer == CompactSerializer:
+        serializer = CompactSerializer(fields=fieldOrdering)
+
     ledger = Ledger(CompactMerkleTree(), dataDir=targetDir,
-                    serializer=CompactSerializer(fields=fieldOrdering),
-                    fileName=fileName)
+                    serializer=serializer, fileName=fileName)
 
     if reset:
         ledger.reset()
